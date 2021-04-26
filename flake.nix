@@ -14,7 +14,7 @@
         };
       in rec {
         devShell = pkgs.mkShell {
-          name = "recipe-util_dev";
+          name = "fengine-dev";
           nativeBuildInputs = with pkgs; [
             ninja
             meson
