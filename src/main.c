@@ -3,6 +3,7 @@
 #include <dirent.h>
 #include <unistd.h>
 #include <stdbool.h>
+#include <sys/param.h>
 
 struct parser{
     int input_fd;
@@ -43,7 +44,7 @@ struct state{
     bool done;
     size_t pos;
     size_t arena_size;
-    char arena[];
+    unsigned char arena[];
 };
 
 struct state *
@@ -81,9 +82,31 @@ state_step(struct state *state) {
         if (state->pos < state->arena_size-1) state->pos--;
         else exit(1); // TODO error handling
         break;
-    }
+    case '+' :
+        state->arena[state->pos]++;
+        break;
+    case '-' :
+        state->arena[state->pos]--;
+        break;
+	}
 
-    return state->pos;
+	return state->pos;
+}
+
+void
+state_print(struct state *state) {
+
+    // TODO use an input or const variable to replace the 5
+    if (state->pos > 5) fprintf(stderr, "... ");
+	for (int idx = MAX((ssize_t)state->pos - 5, 0); idx < state->pos; idx++)
+			fprintf(stderr, "%d ", state->arena[idx]);
+	
+	fprintf(stderr, "[%d]", state->arena[state->pos]);
+	
+    for (int idx = state->pos+1; idx <= MIN(state->arena_size-1, state->pos+5); idx++)
+			fprintf(stderr, " %d", state->arena[idx]);
+
+	fprintf(stderr, "\n");
 }
 
 int
@@ -91,6 +114,6 @@ main(int argc, char** argv) {
     struct state *state = state_initialize(0, 1024);
     while(!state->done) {
         state_step(state);
-        printf("Pos: %d, Val: %d\n", (int)state->pos, state->arena[state->pos]);
+		state_print(state);
     }
 }
