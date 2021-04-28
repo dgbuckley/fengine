@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <sys/param.h>
 
-#include "buff.h"
+#include "buf.h"
 
 /**
  * parser reads the internal buffer char by char. It refils by copying in the
@@ -137,9 +137,18 @@ state_print(struct state *state) {
 
 int
 main(int argc, char** argv) {
-    struct state *state = state_initialize(0, 1024);
-    while(!state->done) {
-        state_step(state);
+	struct feng_buffer input = {0};
+	feng_buffer_ensure_cap(&input, BUFSIZ);
+    struct state *state = state_initialize(&input, 1024);
+
+	ssize_t n;
+	size_t buf_size = BUFSIZ;
+
+    while((n = getline(&input.data, &input.cap, stdin))) {
+		// This is pretty hacky
+		input.len = n;
+
+		execute_buffer(state);
 		state_print(state);
-    }
+	}
 }

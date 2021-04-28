@@ -20,6 +20,8 @@ add_project_arguments(cc.get_supported_arguments([
 		'-Wno-pointer-arith',
 		'-Wno-unused-but-set-variable',
 		'-Wno-sign-compare',
+		
+		'-D_POSIX_C_SOURCE=200809L'
 ]), language: 'c')
 
 engine_inc = include_directories('include')
