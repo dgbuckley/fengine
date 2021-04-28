@@ -72,16 +72,19 @@ state_deinit(struct state *state) {
 }
 
 /**
- * Steps forward in the state of the program. It will return it's current position each step.
+ * Steps forward in the state of the program. It will return 1 if it steps
+ * forward, 0 if no steps are made, and < 0 if there is an error.
  */
-size_t
+int
 state_step(struct state *state) {
     char inst;
 
 	// TODO this should be an error
-	if  (parser_next(&state->parser, &inst)) return 0;
+	if (!parser_next(&state->parser, &inst)) return -1;
 
     switch (inst) {
+    case '\0':
+        return 0;
     case '>' :
         if (state->pos < state->arena_size-1) state->pos++;
         else exit(1); // TODO error handling
@@ -98,15 +101,14 @@ state_step(struct state *state) {
         break;
 	}
 
-	return state->pos;
+	return 1;
 }
 
 int
 execute_buffer(struct state *state) {
     int buf_len = state->parser.buf.len;
     int executed_steps = buf_len - state->parser.pos;
-    for (int step = state->parser.pos; step < buf_len; step++)
-        state_step(state);
+    while (state_step(state) > 0);
     return executed_steps;
 }
 
