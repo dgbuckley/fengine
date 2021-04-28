@@ -26,7 +26,10 @@ engine_inc = include_directories('include')
 
 decl_exe = executable(
 	'fengine',
-	files('src/main.c'),
+	files(
+		'src/main.c',
+		'src/buf.c',
+	),
 	include_directories: engine_inc,
 	dependencies: [ ],
 	install: true,
