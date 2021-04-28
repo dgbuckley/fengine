@@ -56,13 +56,12 @@ struct state{
 };
 
 struct state *
-state_initialize(int input_fd, size_t arena_size) {
+state_initialize(struct feng_buffer *input, size_t arena_size) {
     struct state *state;
     if ((state = calloc(sizeof(state) + arena_size, 1)) == NULL) return NULL;
 
-    create_parser(input_fd, state->parser_buf, 1024, &state->parser);
+    create_parser(&state->parser, input);
     state->arena_size = arena_size;
-    state->done = false;
 
     return state;
 }
@@ -77,7 +76,7 @@ state_deinit(struct state *state) {
  */
 size_t
 state_step(struct state *state) {
-    char inst
+    char inst;
 
 	// TODO this should be an error
 	if  (parser_next(&state->parser, &inst)) return 0;
