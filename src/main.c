@@ -5,45 +5,53 @@
 #include <stdbool.h>
 #include <sys/param.h>
 
+#include "buff.h"
+
+/**
+ * parser reads the internal buffer char by char. It refils by copying in the
+ * entire input buffer.
+ */
 struct parser{
-    int input_fd;
-    char* buf; // Buffer for reading in input
-    size_t buf_cap; // Size of the buffer
-    ssize_t buf_l; //Amount read into the buffer
-    size_t pos; // Position in the buffer
+	// Input buffer
+	struct feng_buffer *input;
+	// Internal buffer
+    struct feng_buffer buf;
+	// Position in our buffer
+	size_t pos;
 };
 
 void
-create_parser(int fd, char *buffer, int buffer_len, struct parser *parser) {
-    parser->input_fd = fd;
-    parser->buf = buffer;
-    parser->buf_cap = buffer_len;
-    parser->pos = 0;
-    parser->buf_l = 0;
+create_parser(struct parser *parser, struct feng_buffer *input) {
+	parser->input = input;
 }
 
-char
-parser_next_char(struct parser *parser) {
-    if (parser->pos >= parser->buf_l) {
-        parser->buf_l = read(parser->input_fd, parser-> buf, parser->buf_cap);
-        if (parser->buf_l <= 0) {
-            if (parser->buf_l == 0) return '\0';
-            // TODO handle this error
-            return '\0';
-        }
-        parser->pos = 0;
-    // } else parser->pos++;
-    }
+/**
+ * gets the next char from the buffer. Copies in the input buf as needed.
+ * If there are no remaining chars then char will be null. False is returned
+ * if there is an issue.
+ */
+bool
+parser_next(struct parser *parser, char *c) {
+	*c = '\0';
+	if (parser->buf.len == parser->pos) {
+		parser->pos = parser->buf.len = 0;
+		if (parser->input->len == 0) return true;
 
-    return parser->buf[parser->pos++];
+		if (!feng_buffer_append(&parser->buf, parser->input->data, parser->input->len)) return false;
+		parser->input->len = 0;
+	}
+
+	*c = parser->buf.data[parser->pos++];
+	return true;
 }
 
 struct state{
-    struct parser parser;
-    char parser_buf[1024];
-    bool done;
+	struct parser parser;
+	// Position in the arena
     size_t pos;
+	// Size of the trailing arena
     size_t arena_size;
+	// Arena array of n size
     unsigned char arena[];
 };
 
@@ -62,18 +70,19 @@ state_initialize(int input_fd, size_t arena_size) {
 void
 state_deinit(struct state *state) {
     free(state);
-} 
+}
 
 /**
- * Steps forward in the state of the program. It will return it's current possition each step.
+ * Steps forward in the state of the program. It will return it's current position each step.
  */
 size_t
 state_step(struct state *state) {
-    char inst = parser_next_char(&state->parser);
+    char inst
+
+	// TODO this should be an error
+	if  (parser_next(&state->parser, &inst)) return 0;
+
     switch (inst) {
-    case '\0' :
-        state->done = true;
-        break;
     case '>' :
         if (state->pos < state->arena_size-1) state->pos++;
         else exit(1); // TODO error handling
