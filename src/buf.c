@@ -8,6 +8,7 @@ feng_buffer_append(struct feng_buffer *dest, char *data, size_t len) {
 	if (!feng_buffer_ensure_cap(dest, len + dest->len)) return false;
 
     memcpy(dest->data + dest->len, data, len);
+	dest->len += len;
     return true;
 }
 
