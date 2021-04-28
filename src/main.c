@@ -127,13 +127,13 @@ state_print(struct state *state) {
     if (state->pos > 5) fprintf(stderr, "... ");
 	for (int idx = MAX((ssize_t)state->pos - 5, 0); idx < state->pos; idx++)
 			fprintf(stderr, "%d ", state->arena[idx]);
-	
-	fprintf(stderr, "[%d]", state->arena[state->pos]);
-	
-    for (int idx = state->pos+1; idx <= MIN(state->arena_size-1, state->pos+5); idx++)
-			fprintf(stderr, " %d", state->arena[idx]);
 
-	fprintf(stderr, "\n");
+	fprintf(stderr, "[%d]", state->arena[state->pos]);
+
+    for (int idx = state->pos+1; idx <= MIN(state->arena_size-1, state->pos+5); idx++)
+			fprintf(stdout, " %d", state->arena[idx]);
+
+	fprintf(stdout, "\n");
 }
 
 int
