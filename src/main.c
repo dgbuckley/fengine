@@ -90,7 +90,7 @@ state_step(struct state *state) {
         else exit(1); // TODO error handling
         break;
     case '<' :
-        if (state->pos < state->arena_size-1) state->pos--;
+        if (state->pos > 0) state->pos--;
         else exit(1); // TODO error handling
         break;
     case '+' :
