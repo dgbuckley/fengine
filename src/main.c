@@ -102,6 +102,24 @@ state_step(struct state *state) {
 	return state->pos;
 }
 
+int
+execute_buffer(struct state *state) {
+    int buf_len = state->parser.buf.len;
+    int executed_steps = buf_len - state->parser.pos;
+    for (int step = state->parser.pos; step < buf_len; step++)
+        state_step(state);
+    return executed_steps;
+}
+
+int
+excecute_n(struct state *state, int n) {
+    int buf_pos = state->parser.pos;
+    int executed_steps = MIN(n, state->parser.buf.len - buf_pos);
+    for (int step = buf_pos; step < buf_pos+executed_steps; step++)
+        state_step(state);
+    return executed_steps;
+}
+
 void
 state_print(struct state *state) {
 
